@@ -1,0 +1,16 @@
+{
+  "$comment": "Verified data points: monitor models where the FreeSync/Adaptive-Sync root cause and fixes were confirmed. Maintainers/agents: append entries from diagnosis-report issues, keep JSON valid (CI checks it).",
+  "entries": [
+    {
+      "monitor": "Unknown 2018 monitor (vendor 0x2613, product 0x2700)",
+      "resolution": "2560x1440@60",
+      "connection": "HDMI (Mac mini built-in port)",
+      "mac": "Mac mini M4, macOS 26.5",
+      "freesyncBefore": "On",
+      "outcome": "fixed",
+      "mitigation": null,
+      "date": "2026-09-27",
+      "source": "original case (docs/case-study-zh.md)"
+    }
+  ]
+}

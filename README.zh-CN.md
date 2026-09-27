@@ -73,6 +73,22 @@ display-resync --status   # 查看当前显示模式
 - 重建在 1 秒内完成、出现 `42 timing modes`、无重试 → 线材健康，问题在别处
 - 出现重试/模式缺失/`link training` 失败 → 线材或接口问题，该换了
 
+## 已验证显示器
+
+本诊断/修复方法已被确认有效的机型（结构化数据：[data/verified-monitors.json](data/verified-monitors.json)）：
+
+| 显示器 | 模式 | Mac | FreeSync 原状态 | 结果 |
+|---|---|---|---|---|
+| 未知 2018 款（0x2613/0x2700） | 2560x1440@60 | Mac mini M4，macOS 26.5 | 开 | ✅ 关闭 FreeSync 后根治 |
+
+**帮助扩充这张表**——诊断完成后跑一条命令：
+
+```bash
+scripts/feedback.sh fixed --freesync on --notes "症状简述"
+```
+
+脚本自动采集硬件信息（已剥离序列号），有 `gh` 时直接开 issue——没有则输出可粘贴文本。无效结果（`no-change`）同样欢迎：可能揭示第二种根因。
+
 ## FAQ
 
 **Q：要不要换线？**

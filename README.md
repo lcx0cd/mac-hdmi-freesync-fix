@@ -73,6 +73,22 @@ Interpreting results:
 - Rebuilds complete in <1s with `42 timing modes` and no retries → cable is healthy, look elsewhere
 - Retries / missing modes / `link training` failures → cable or connector problem, replace it
 
+## Verified monitors
+
+Data points where this diagnosis/fix was confirmed (structured source: [data/verified-monitors.json](data/verified-monitors.json)):
+
+| Monitor | Mode | Mac | FreeSync before | Outcome |
+|---|---|---|---|---|
+| Unknown 2018 monitor (0x2613/0x2700) | 2560x1440@60 | Mac mini M4, macOS 26.5 | On | ✅ Fixed by turning FreeSync off |
+
+**Help grow this table** — after your diagnosis, run:
+
+```bash
+scripts/feedback.sh fixed --freesync on --notes "short symptom summary"
+```
+
+It auto-collects your hardware info (serials stripped) and files a GitHub issue via `gh` — or prints paste-ready text if `gh` isn't authenticated. Negative results (`no-change`) are equally welcome: they may reveal a second root cause.
+
 ## FAQ
 
 **Q: Should I replace my cable?**
