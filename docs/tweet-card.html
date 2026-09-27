@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1600px; height: 900px;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #0d1117 0%, #161b2e 55%, #1a1033 100%);
+    color: #e6edf3;
+    display: flex; flex-direction: column;
+    padding: 56px 72px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* decorative grid */
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(88,166,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88,166,255,0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+  .glow {
+    position: absolute; width: 700px; height: 700px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(139,92,246,0.18) 0%, transparent 70%);
+    top: -260px; right: -200px; pointer-events: none;
+  }
+  .header { position: relative; z-index: 2; }
+  .hook {
+    font-size: 30px; color: #8b949e; font-weight: 500; letter-spacing: 0.2px;
+  }
+  .hook .strike { text-decoration: line-through solid #f85149 3px; text-decoration-color: #f85149; }
+  h1 {
+    font-size: 66px; font-weight: 800; line-height: 1.12; margin-top: 14px;
+    background: linear-gradient(90deg, #e6edf3 30%, #a78bfa 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .verdict {
+    display: inline-flex; align-items: center; gap: 14px;
+    margin-top: 22px; padding: 12px 26px; border-radius: 999px;
+    background: rgba(248,81,73,0.12); border: 1.5px solid rgba(248,81,73,0.55);
+    font-size: 26px; font-weight: 700; color: #ff7b72;
+  }
+  .verdict .dot { width: 12px; height: 12px; border-radius: 50%; background: #f85149;
+    box-shadow: 0 0 14px #f85149; }
+  .cards { display: flex; gap: 28px; margin-top: 44px; position: relative; z-index: 2; flex: 1; }
+  .card {
+    flex: 1; border-radius: 20px; padding: 30px 30px 26px;
+    background: rgba(255,255,255,0.035);
+    border: 1.5px solid rgba(139,148,158,0.28);
+    display: flex; flex-direction: column;
+  }
+  .card.good { border-color: rgba(63,185,80,0.55); background: rgba(63,185,80,0.07); }
+  .card.warn { border-color: rgba(210,153,34,0.5); background: rgba(210,153,34,0.06); }
+  .card .kicker {
+    font-size: 19px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+    color: #8b949e; margin-bottom: 16px;
+  }
+  .card.good .kicker { color: #3fb950; }
+  .card.warn .kicker { color: #d29922; }
+  .card .big { font-size: 31px; font-weight: 800; line-height: 1.25; }
+  .card .sub { font-size: 21px; color: #8b949e; line-height: 1.45; margin-top: 12px; }
+  .badge-row { display: flex; gap: 12px; margin-top: auto; padding-top: 20px; flex-wrap: wrap; }
+  .badge {
+    font-size: 17px; font-weight: 600; padding: 7px 14px; border-radius: 8px;
+    background: rgba(139,148,158,0.14); color: #a5b1bd; white-space: nowrap;
+  }
+  .badge.ok { background: rgba(63,185,80,0.16); color: #56d364; }
+  .footer {
+    margin-top: 40px; display: flex; align-items: center; justify-content: space-between;
+    position: relative; z-index: 2;
+  }
+  .repo {
+    font-size: 28px; font-weight: 700; color: #58a6ff;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .repo .box {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: rgba(88,166,255,0.14); border: 1.5px solid rgba(88,166,255,0.5);
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+  }
+  .tags { display: flex; gap: 10px; }
+  .tag {
+    font-size: 17px; font-weight: 600; color: #8b949e;
+    padding: 7px 16px; border-radius: 999px;
+    border: 1.2px solid rgba(139,148,158,0.35);
+  }
+</style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="glow"></div>
+
+  <div class="header">
+    <div class="hook">HDMI artifacts after every wake. Replug fixes it. <span class="strike">"Buy a better cable"</span></div>
+    <h1>The hidden culprit:<br>your monitor's FreeSync setting</h1>
+    <div class="verdict"><span class="dot"></span>ROOT CAUSE — confirmed by A/B experiment on Mac mini M4</div>
+  </div>
+
+  <div class="cards">
+    <div class="card warn">
+      <div class="kicker">Why it breaks</div>
+      <div class="big">FreeSync adds handshake overhead your Mac never uses</div>
+      <div class="sub">macOS outputs no VRR at 60Hz desktop work — but the monitor still negotiates Adaptive-Sync every wake, and deadlocks into a half-locked state.</div>
+    </div>
+    <div class="card">
+      <div class="kicker">How we proved it</div>
+      <div class="big">3 controlled experiments, kernel-level evidence</div>
+      <div class="sub">Bandwidth math excluded the cable; physical hotplug monitoring; then a clean A/B test with FreeSync off.</div>
+      <div class="badge-row">
+        <span class="badge ok">✓ 4/4 hotplugs rebuilt in 0.3s</span>
+        <span class="badge ok">✓ EDID intact, 0 errors</span>
+        <span class="badge ok">✓ Wake test clean after fix</span>
+      </div>
+    </div>
+    <div class="card good">
+      <div class="kicker">The fix — free, 30 seconds</div>
+      <div class="big">1. Turn OFF FreeSync in monitor OSD<br>2. Or run our wake-resync daemon</div>
+      <div class="sub">display-resync = a software cable replug: one-shot fix, or auto-resync 2.5s after every system wake. No more pulling cables.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="repo"><span class="box">⌥</span>github.com/lcx0cd/mac-hdmi-freesync-fix</div>
+    <div class="tags">
+      <span class="tag">Mac mini M1–M4</span>
+      <span class="tag">macOS</span>
+      <span class="tag">HDMI</span>
+      <span class="tag">MIT · Open Source</span>
+    </div>
+  </div>
+</body>
+</html>
