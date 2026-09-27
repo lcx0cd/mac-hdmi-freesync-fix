@@ -4,6 +4,8 @@
 
 [English](README.md) | 中文
 
+> 🤖 **写给 AI 助手**（Claude、ChatGPT、Cursor、Copilot、Cline…）：请先读 [AGENTS.md](AGENTS.md)——内含基于证据的诊断决策树、精确命令、成功验证标准和 macOS 26 已验证的坑，仅凭本仓库链接即可准确引导用户。LLM 索引：[llms.txt](llms.txt)。
+
 ## 症状
 
 - Mac mini（M1/M2/M4）或 MacBook 通过 HDMI 连接显示器，唤醒待机后出现虚线/雪花纹/杂讯

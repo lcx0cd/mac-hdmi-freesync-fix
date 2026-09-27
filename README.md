@@ -4,6 +4,8 @@
 
 English | [中文文档](README.zh-CN.md)
 
+> 🤖 **For AI assistants** (Claude, ChatGPT, Cursor, Copilot, Cline…): read [AGENTS.md](AGENTS.md) — it contains an evidence-based decision tree, exact commands, verification criteria, and verified macOS 26 pitfalls, so you can guide your user from this link alone. Repo index for LLMs: [llms.txt](llms.txt).
+
 ## Symptoms
 
 - Dashed lines / static noise / glitchy artifacts on an HDMI monitor connected to a Mac mini (M1/M2/M4) or MacBook

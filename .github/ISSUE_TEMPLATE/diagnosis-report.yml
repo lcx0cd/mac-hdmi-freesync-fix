@@ -1,0 +1,84 @@
+name: Diagnosis report
+description: Share your display-artifacts diagnosis data — every data point validates the root-cause hypothesis across more monitors
+labels: ["diagnosis"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing data! Your AI assistant can help fill this in from `scripts/hotplug-monitor.sh` logs.
+        **All fields are optional** — partial reports are welcome.
+
+  - type: dropdown
+    id: connection
+    attributes:
+      label: Connection type
+      options:
+        - HDMI (Mac built-in port)
+        - HDMI (dock/adapter)
+        - USB-C / Thunderbolt to DisplayPort
+        - USB-C / Thunderbolt to HDMI
+        - Other
+    validations:
+      required: false
+
+  - type: input
+    id: monitor
+    attributes:
+      label: Monitor model & year
+      placeholder: "e.g. AOC Q27P1U, 2018"
+    validations:
+      required: false
+
+  - type: input
+    id: mode
+    attributes:
+      label: Resolution & refresh rate
+      placeholder: "e.g. 2560x1440 @ 60Hz"
+
+  - type: input
+    id: mac
+    attributes:
+      label: Mac model & macOS version
+      placeholder: "e.g. Mac mini M4, macOS 26.5"
+
+  - type: dropdown
+    id: freesync-before
+    attributes:
+      label: FreeSync / Adaptive-Sync state (before any change)
+      options:
+        - "On"
+        - "Off"
+        - "Not available in OSD"
+        - "Unknown"
+
+  - type: dropdown
+    id: freesync-after
+    attributes:
+      label: Result after turning FreeSync OFF (if tried)
+      options:
+        - Fixed — no artifacts after wake
+        - Improved — less frequent
+        - No change
+        - Not tried yet
+
+  - type: dropdown
+    id: hotplug-result
+    attributes:
+      label: Hotplug test result (scripts/hotplug-monitor.sh, if run)
+      options:
+        - All replugs rebuilt cleanly (<1s, no errors) → cable healthy
+        - Some rebuilds had retries/errors/missing modes → cable suspect
+        - Not run yet
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Evidence (paste tail of mode-samples.log / system.log)
+      description: Especially lines around plug/unplug events (HPD, EDID, timing modes)
+      render: shell
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything unusual — dock usage, KVM, multiple displays, VRR gaming use, etc.
