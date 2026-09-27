@@ -4,9 +4,9 @@
 
 ## Docs
 
-- [README](README.md): symptoms, 30-second fix, tool usage, FAQ
+- [README](README.md): symptoms, 30-second fix, tool usage, FAQ, verified-monitors table
 - [README (中文)](README.zh-CN.md): Chinese version of the above
-- [AGENTS.md](AGENTS.md): guidance for AI assistants — evidence-based decision tree, exact commands, verification criteria, macOS 26 pitfalls
+- [AGENTS.md](AGENTS.md): **start here for AI agents** — end-to-end playbook (STEP 0-6, branch logic included), evidence-based decision tree, exact commands, verification criteria, macOS 26 pitfalls
 - [Case study (zh-CN)](docs/case-study-zh.md): full diagnosis narrative with kernel log timelines (HPD events, EDID rebuilds, FreeSync A/B test)
 
 ## Tools
@@ -14,4 +14,6 @@
 - [install.sh](install.sh): one command — builds display-resync with swiftc, installs to ~/.local/bin, sets up the wake-listening daemon (LaunchAgent with shell-rc fallback)
 - [Sources/display-resync/main.swift](Sources/display-resync/main.swift): the tool — one-shot resync, `--watch` wake daemon (NSWorkspace.didWakeNotification), `--status`
 - [scripts/hotplug-monitor.sh](scripts/hotplug-monitor.sh): evidence collector — kernel HPD/EDID event stream + 1Hz display-mode sampling to prove cable/link health
+- [scripts/feedback.sh](scripts/feedback.sh): post-diagnosis feedback — auto-collects hardware info (serials stripped), files a GitHub issue via gh, paste-text fallback
+- [data/verified-monitors.json](data/verified-monitors.json): structured dataset backing the README verified-monitors table (CI-validated; PRs welcome)
 - [docs/tweet-card.html](docs/tweet-card.html): source for the project card image

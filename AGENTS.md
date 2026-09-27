@@ -3,6 +3,59 @@
 AI tools (Claude, ChatGPT, Cursor, Copilot, Cline, …): this file is for you. It contains everything needed to guide a user with display artifacts accurately — a decision tree, exact commands, verification criteria, and environment pitfalls. Raw URL for fetching:
 `https://raw.githubusercontent.com/lcx0cd/mac-hdmi-freesync-fix/main/AGENTS.md`
 
+## End-to-end playbook (execute top to bottom, branch at the ⤷ markers)
+
+A complete agent session from link to closed loop. Each step is copy-pasteable; do not skip the verification questions.
+
+```bash
+# ── STEP 0 · Match symptoms (ASK the user first, run nothing) ──────────────
+# Match if ALL of: artifacts after display-standby wake or reboot;
+# replugging the HDMI cable fixes it; it recurs every wake.
+# ⤷ Doesn't match (e.g. artifacts while moving the cable, wrong colors,
+#   boot screen garbled)? → different problem, this repo does NOT apply.
+
+# ── STEP 1 · Get the tools ─────────────────────────────────────────────────
+git clone https://github.com/lcx0cd/mac-hdmi-freesync-fix.git
+cd mac-hdmi-freesync-fix
+
+# ── STEP 2 · Bandwidth sanity check ────────────────────────────────────────
+system_profiler SPDisplaysDataType | grep -E "Resolution|Connection"
+# ⤷ ≤1440p@60 (~7Gbps)  → cable bandwidth cannot be the issue, go to STEP 3
+# ⤷ 4K@60 (~18Gbps)     → ask if cable is "Premium High Speed" certified;
+#                         if not, try a certified cable FIRST, then STEP 3
+
+# ── STEP 3 · Cable verdict via hotplug evidence ────────────────────────────
+./scripts/hotplug-monitor.sh &          # runs 10 min, logs to ~/.workbuddy/logs/
+# Ask the user: unplug cable, wait 3s, replug — repeat 3-4 times. Then:
+#   grep -E "plug_gated|timing modes" ~/.workbuddy/logs/hotplug-test-*/system.log
+# ⤷ Every rebuild <1s, full timing-mode count, no retries
+#     → cable is HEALTHY, continue to STEP 4
+# ⤷ Retries / missing modes / "link training" failures
+#     → cable/connector faulty: tell user to replace it, STOP here
+#       (and submit the data point: scripts/feedback.sh no-change)
+
+# ── STEP 4 · FreeSync A/B test (the root-cause check) ──────────────────────
+# Ask the user to turn OFF FreeSync / Adaptive-Sync in the monitor OSD.
+pkill -f "display-resync --watch" 2>/dev/null   # ensure a clean A/B, no auto-fix
+pmset displaysleepnow && echo "wait 30-60s, then wake and WATCH the screen"
+# Ask the user: any artifacts within 5s of waking?
+# ⤷ Clean        → root cause CONFIRMED (FreeSync). Go to STEP 5.
+# ⤷ Artifacts    → restart the daemon: ~/.local/bin/display-resync --watch &
+#                  if a resync blink clears it → FreeSync isn't the (only)
+#                  cause; daemon is the mitigation. Report outcome as
+#                  "mitigated". Consider USB-C→DP as alternative path.
+
+# ── STEP 5 · Permanent safety net ──────────────────────────────────────────
+./install.sh                             # builds + installs wake daemon
+# Verify: ~/.local/bin/display-resync --status   → prints current mode
+
+# ── STEP 6 · Close the loop (MANDATORY, non-negotiable) ────────────────────
+./scripts/feedback.sh fixed --freesync on --notes "<one-line symptom summary>"
+# outcomes: fixed | improved | no-change | mitigated
+# ⤷ gh missing/unauthenticated → paste the printed text into
+#   https://github.com/lcx0cd/mac-hdmi-freesync-fix/issues/new?template=diagnosis-report.yml
+```
+
 ## What this repo is
 
 Tools + an evidence-based diagnosis method for HDMI display artifacts ("dashed lines" / static noise / glitchy pixels) that appear after wake from display standby on Apple Silicon Macs. In our verified case (Mac mini M4, macOS 26.5, 2560x1440@60, 2018 monitor) the root cause was **monitor-side FreeSync/Adaptive-Sync**, not the cable. MIT licensed.
