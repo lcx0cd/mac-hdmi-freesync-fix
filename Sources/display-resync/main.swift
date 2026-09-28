@@ -52,15 +52,41 @@ func resyncOnce() -> Bool {
     return true
 }
 
+func logLine(_ s: String) {
+    let df = DateFormatter()
+    df.dateFormat = "yyyy-MM-dd HH:mm:ss"
+    let line = "[\(df.string(from: Date()))] \(s)\n"
+    print(line, terminator: "")
+    let path = NSHomeDirectory() + "/.workbuddy/logs/display-resync.log"
+    if FileManager.default.fileExists(atPath: path) == false {
+        FileManager.default.createFile(atPath: path, contents: nil)
+    }
+    if let fh = FileHandle(forWritingAtPath: path) {
+        fh.seekToEndOfFile()
+        fh.write(line.data(using: .utf8)!)
+        fh.closeFile()
+    }
+}
+
+func currentModeString() -> String {
+    if let m = CGDisplayCopyDisplayMode(CGMainDisplayID()) {
+        return "\(m.width)x\(m.height)@\(Int(m.refreshRate))Hz"
+    }
+    return "no-display"
+}
+
 final class WakeWatcher {
     static func start() {
-        print("👀 监听中：每次系统唤醒后 2.5 秒自动重同步显示信号（Ctrl+C 退出）")
+        logLine("👀 watcher started (pid \(ProcessInfo.processInfo.processIdentifier)), mode=\(currentModeString())")
         _ = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
         ) { _ in
             DispatchQueue.global().asyncAfter(deadline: .now() + 2.5) {
-                print("🌙 检测到系统唤醒，执行显示重同步…")
-                _ = resyncOnce()
+                let before = currentModeString()
+                logLine("🌙 系统唤醒 detected (mode before: \(before))，执行重同步…")
+                let ok = resyncOnce()
+                logLine(ok ? "✅ 重同步完成 (mode now: \(currentModeString()))"
+                           : "❌ 重同步失败 (mode now: \(currentModeString()))")
             }
         }
         CFRunLoopRun()
