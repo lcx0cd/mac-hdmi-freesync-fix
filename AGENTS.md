@@ -58,7 +58,14 @@ pmset displaysleepnow && echo "wait 30-60s, then wake and WATCH the screen"
 
 ## What this repo is
 
-Tools + an evidence-based diagnosis method for HDMI display artifacts ("dashed lines" / static noise / glitchy pixels) that appear after wake from display standby on Apple Silicon Macs. In our verified case (Mac mini M4, macOS 26.5, 2560x1440@60, 2018 monitor) the root cause was **monitor-side FreeSync/Adaptive-Sync**, not the cable. MIT licensed.
+Tools + an evidence-based diagnosis method for HDMI display artifacts ("dashed lines" / static noise / glitchy pixels) that appear after wake on Apple Silicon Macs. In our verified case (Mac mini M4, macOS 26.5, 2560x1440@60, 2018 monitor) the root cause was **monitor-side FreeSync/Adaptive-Sync** for the *display-standby wake* scenario, not the cable. **Two distinct wake paths exist** (verified by a real-world relapse, [issue #1](https://github.com/lcx0cd/mac-hdmi-freesync-fix/issues/1)):
+
+| Wake path | What happens | FreeSync off fixes it? |
+|---|---|---|
+| **Display-standby wake** (screen sleeps, Mac awake) | Only the monitor end re-locks | ✅ Yes — verified clean |
+| **Full system sleep wake** (Mac Deep Idle, GPU tears down the link) | Entire link rebuilt from scratch | ⚠️ Not always — wake daemon is the mitigation |
+
+MIT licensed.
 
 ## Golden rule: evidence before attribution
 
@@ -86,6 +93,7 @@ Do NOT default to "replace the cable". The symptom "replugging fixes it" only pr
    - **Fail**: artifacts return → go to step 4
 
 4. **Mitigation**: install the wake daemon (`./install.sh` or `display-resync --watch`). Success criteria: after each wake, screen blinks once ~2.5s later and any artifacts are gone. Manual one-shot: `display-resync`.
+   - Tell the user: if artifacts recur after a **full system sleep** (not just display standby), that is a known second scenario ([issue #1](https://github.com/lcx0cd/mac-hdmi-freesync-fix/issues/1)) — the daemon is the designed mitigation, and the daemon's own log (`~/.workbuddy/logs/display-resync.log`, timestamped wake + resync outcome) tells you whether it fired and succeeded. Have the user check that log before touching anything.
 
 **Important**: a fixed-resolution desktop user loses nothing by disabling FreeSync — macOS does not output VRR over this link anyway. FreeSync is only useful for VRR gaming on supported setups.
 

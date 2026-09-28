@@ -19,7 +19,7 @@ English | [中文文档](README.zh-CN.md)
 
 If your usage is a fixed refresh rate (60Hz/75Hz desktop work), FreeSync provides **zero benefit** on a Mac — macOS doesn't output VRR over this link — but it adds an extra Adaptive-Sync negotiation layer to every HDMI handshake. When both the Mac and the monitor wake from deep standby simultaneously, that negotiation state machine deadlocks into a half-locked state → artifacts.
 
-If you still see artifacts occasionally (e.g. after a full reboot), use the [`display-resync`](#tool-1-display-resync) tool below as a software "cable replug".
+> **Scope note (updated after a real-world relapse, [issue #1](https://github.com/lcx0cd/mac-hdmi-freesync-fix/issues/1))**: this fix is proven for the **display-standby wake** scenario (screen sleeps, Mac stays awake). After a **full system sleep** (Mac enters Deep Idle, GPU tears down the link entirely) artifacts can still occur even with FreeSync off — that path is a second, separate handshake scenario. The [`display-resync --watch`](#tool-1-display-resync) daemon is the mitigation for it: it auto-resyncs ~2.5s after every wake, so artifacts clear themselves with a single blink.
 
 ## How we proved it (3-experiment diagnosis)
 
@@ -30,6 +30,7 @@ Tested on: Mac mini M4, macOS 26.5, 2018 2560x1440@60Hz monitor via built-in HDM
 | 1. Bandwidth check | `system_profiler` + EDID analysis | 2560x1440@60 needs only ~7Gbps | ❌ Cable bandwidth NOT the issue |
 | 2. Physical hotplug test (4x unplug/replug) | Kernel-level HPD event logging while user replugged | **All 4 rebuilds completed in 0.3s, EDID intact, 42 timing modes, zero errors** | ❌ Cable/connector quality NOT the issue |
 | 3. FreeSync A/B test | Disable FreeSync in OSD → force display standby (`pmset displaysleepnow`) → wake after 50s | **No artifacts. Clean recovery.** | ✅ **Monitor-side FreeSync is the root cause** |
+| 4. Real-world relapse (next day) | Full **system sleep** → wake with FreeSync still off | Artifacts returned; hotplug needed | ⚠️ System-sleep wake is a **second scenario** — daemon mitigates it |
 
 Key insight: the problem **only** appeared after sleep/wake, **never** during wide-awake hotplugs. That asymmetry points at handshake negotiation, not signal quality.
 
@@ -79,7 +80,8 @@ Data points where this diagnosis/fix was confirmed (structured source: [data/ver
 
 | Monitor | Mode | Mac | FreeSync before | Outcome |
 |---|---|---|---|---|
-| Unknown 2018 monitor (0x2613/0x2700) | 2560x1440@60 | Mac mini M4, macOS 26.5 | On | ✅ Fixed by turning FreeSync off |
+| Unknown 2018 monitor (0x2613/0x2700) | 2560x1440@60 | Mac mini M4, macOS 26.5 | On | ✅ Fixed by turning FreeSync off (display-standby wake) |
+| Same unit, next day | 2560x1440@60 | Mac mini M4, macOS 26.5.2 | Off | ⚠️ Mitigated ([issue #1](https://github.com/lcx0cd/mac-hdmi-freesync-fix/issues/1)): full system-sleep wake still triggers artifacts; wake daemon covers it |
 
 **Help grow this table** — after your diagnosis, run:
 

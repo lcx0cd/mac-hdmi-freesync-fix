@@ -11,6 +11,17 @@
       "mitigation": null,
       "date": "2026-09-27",
       "source": "original case (docs/case-study-zh.md)"
+    },
+    {
+      "monitor": "Unknown 2018 monitor (vendor 0x2613, product 0x2700) — same unit",
+      "resolution": "2560x1440@60",
+      "connection": "HDMI (Mac mini built-in port)",
+      "mac": "Mac mini M4, macOS 26.5.2",
+      "freesyncBefore": "Off (already disabled)",
+      "outcome": "mitigated",
+      "mitigation": "display-resync --watch daemon; artifacts recurred only after FULL system sleep wake (GPU tears down the link), not after display-standby wake. Wake path is a different handshake scenario.",
+      "date": "2026-09-28",
+      "source": "issue #1"
     }
   ]
 }
