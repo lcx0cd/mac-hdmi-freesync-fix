@@ -43,7 +43,10 @@ cat > "${PLIST}" <<EOF
         <string>--watch</string>
     </array>
     <key>RunAtLoad</key><true/>
-    <key>KeepAlive</key><true/>
+    <!-- Restart ONLY on crash (non-zero exit). The binary has a built-in
+         single-instance guard that exits 0 when another daemon already runs;
+         plain KeepAlive=true would respawn it forever in that case. -->
+    <key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>
     <key>StandardOutPath</key><string>${LOG_DIR}/watch.log</string>
     <key>StandardErrorPath</key><string>${LOG_DIR}/watch.log</string>
     <key>ProcessType</key><string>Background</string>
@@ -57,8 +60,13 @@ if launchctl bootstrap "gui/$(id -u)" "${PLIST}" 2>/dev/null; then
   LA_OK=1
   echo "==> LaunchAgent installed (auto-start at login, wake watcher active)"
 else
-  echo "!!  launchctl rejected the agent (common on some macOS 26 setups) — using shell-rc fallback"
-  rm -f "${PLIST}"
+  # IMPORTANT: do NOT delete the plist here. Even when launchctl rejects the
+  # bootstrap (error 5 on some macOS 26 setups), launchd auto-loads plists in
+  # ~/Library/LaunchAgents at the NEXT login — verified in the field. The
+  # daemon then starts at reboot without any manual step.
+  echo "!!  launchctl rejected the agent (common on some macOS 26 setups)."
+  echo "    Plist kept at ${PLIST} — launchd will auto-load it at next login."
+  echo "    Meanwhile the shell-rc fallback below covers the current session."
 fi
 
 if [ "${LA_OK}" -eq 0 ]; then

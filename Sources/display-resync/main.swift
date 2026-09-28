@@ -76,7 +76,26 @@ func currentModeString() -> String {
 }
 
 final class WakeWatcher {
+    static var pidPath: String { NSHomeDirectory() + "/.workbuddy/run/display-resync-watch.pid" }
+
+    // 单实例守卫：已有守护存活则直接退出（防 LaunchAgent/zshrc/手动多入口并存互切分辨率）
+    static func guardSingleInstance() -> Bool {
+        let fm = FileManager.default
+        if let data = fm.contents(atPath: pidPath),
+           let str = String(data: data, encoding: .utf8),
+           let old = Int32(str.trimmingCharacters(in: .whitespacesAndNewlines)),
+           old != ProcessInfo.processInfo.processIdentifier,
+           kill(old, 0) == 0 {
+            logLine("⚠️ 已有守护在运行 (pid \(old))，本次启动退出")
+            return false
+        }
+        try? fm.createDirectory(atPath: (pidPath as NSString).deletingLastPathComponent, withIntermediateDirectories: true)
+        try? "\(ProcessInfo.processInfo.processIdentifier)".write(toFile: pidPath, atomically: true, encoding: .utf8)
+        return true
+    }
+
     static func start() {
+        guard guardSingleInstance() else { exit(0) }
         logLine("👀 watcher started (pid \(ProcessInfo.processInfo.processIdentifier)), mode=\(currentModeString())")
         _ = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
